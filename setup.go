@@ -27,6 +27,7 @@ var log = clog.NewWithPlugin(pluginName)
 func init() { plugin.Register(pluginName, setup) }
 
 func setup(c *caddy.Controller) error {
+	log.Info("starting")
 	k, err := parse(c)
 	if err != nil {
 		return plugin.Error(pluginName, err)

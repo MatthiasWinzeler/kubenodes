@@ -3,7 +3,6 @@ package kubenodes
 import (
 	"context"
 	"fmt"
-	clog "github.com/coredns/coredns/plugin/pkg/log"
 	"net"
 	"reflect"
 	"strings"
@@ -43,8 +42,6 @@ type KubeNodes struct {
 	stopCh   chan struct{}
 }
 
-var logger = clog.NewWithPlugin("kubenodes")
-
 type upstreamer interface {
 	Lookup(ctx context.Context, state request.Request, name string, typ uint16) (*dns.Msg, error)
 }
@@ -73,9 +70,9 @@ func (k KubeNodes) Name() string { return "kubenodes" }
 func (k KubeNodes) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
 	state := request.Request{W: w, Req: r}
 	qname := state.Name()
-	logger.Info("serving request", qname)
+	log.Info("serving request", qname)
 	zone := plugin.Zones(k.Zones).Matches(qname)
-	logger.Info("zone matches", zone)
+	log.Info("zone matches", zone)
 	if zone == "" || !supportedQtype(state.QType()) {
 		return plugin.NextOrFailure(k.Name(), k.Next, ctx, w, r)
 	}
@@ -87,7 +84,7 @@ func (k KubeNodes) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Ms
 		return dns.RcodeSuccess, nil
 	}
 
-	logger.Info("do lookup", qname)
+	log.Info("do lookup", qname)
 
 	// handle reverse lookups
 	if state.QType() == dns.TypePTR {
@@ -124,12 +121,12 @@ func (k KubeNodes) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Ms
 		nodeName = state.Name()[0 : len(qname)-len(zone)]
 	}
 
-	logger.Info("node name", nodeName)
+	log.Info("node name", nodeName)
 
 	// get the node by key name from the indexer
 	item, exists, err := k.indexer.GetByKey(nodeName)
-	logger.Info("item", item)
-	logger.Info("exists", exists)
+	log.Info("item", item)
+	log.Info("exists", exists)
 	if err != nil {
 		return dns.RcodeServerFailure, err
 	}
