@@ -1,4 +1,4 @@
-module github.com/infobloxopen/kubenodes
+module github.com/matthiaswinzeler/kubenodes
 
 go 1.17
 
