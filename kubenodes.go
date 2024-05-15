@@ -231,4 +231,8 @@ func supportedQtype(qtype uint16) bool {
 }
 
 // Ready implements the ready.Readiness interface.
-func (k *KubeNodes) Ready() bool { return k.controller.HasSynced() }
+func (k *KubeNodes) Ready() bool {
+	ready := k.controller.HasSynced()
+	log.Info("ready", ready)
+	return ready
+}
